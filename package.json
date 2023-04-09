@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "debug": "ndb server.js",
-    "watch:js": "npx webpack watch --entry ./public/js/index.js -o ./public/js -w"
+    "start": "node server.js",
+    "debug": "ndb server.js"
   },
   "author": "Abood",
   "license": "ISC",
@@ -45,5 +45,8 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
     "prettier": "^2.8.3"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   }
 }
