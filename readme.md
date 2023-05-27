@@ -9,4 +9,4 @@ It includes technologies like Stripe and SendGrid that add valuable features to 
 The design and implementation was inspired by the "Node.js, Express, MongoDB & More: The Complete Bootcamp 2023" course on udemy by ❤️Jonas Schmedtmann❤️
 
 the link to the site demo is on => natours-api-loxk.onrender.com/
-you may face some latency while opening the site due the the free plan on render.com hosting site
+you may face a 30 seconds latency while opening the site due the the free plan on render.com hosting site
