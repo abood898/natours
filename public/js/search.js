@@ -5,7 +5,7 @@ export const searchTour = async (name) => {
   try {
     const res = await axios({
       method: 'GET',
-      url: `/api/v1/tours/name/${name}`,
+      url: `https://natours-api-loxk.onrender.com/api/v1/tours/name/${name}`,
       data: {},
     });
     if (res.data.status === 'success') {

@@ -5,7 +5,7 @@ export const submitReview = async (review, rating, tour, user) => {
   try {
     const res = await axios({
       method: 'POST',
-      url: `/api/v1/tours/${tour}/reviews`,
+      url: `https://natours-api-loxk.onrender.com/api/v1/tours/${tour}/reviews`,
       data: {
         tour,
         user,

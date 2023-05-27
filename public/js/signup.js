@@ -21,7 +21,7 @@ export const signup = async (data) => {
 
     const res = await axios({
       method: 'POST',
-      url: '/api/v1/users/signup',
+      url: 'https://natours-api-loxk.onrender.com/api/v1/users/signup',
       data,
     });
     location.assign('/emailConfirm');

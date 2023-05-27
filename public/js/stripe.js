@@ -6,7 +6,9 @@ const stripe = Stripe(
 
 export const bookTour = async (tourID, elem) => {
   try {
-    const res = await axios(`/api/v1/bookings/checkout-session/${tourID}`);
+    const res = await axios(
+      `https://natours-api-loxk.onrender.com/api/v1/bookings/checkout-session/${tourID}`
+    );
 
     await stripe.redirectToCheckout({
       sessionId: res.data.session.id,

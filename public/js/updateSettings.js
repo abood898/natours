@@ -5,8 +5,8 @@ export const updateSettings = async (data, type) => {
   try {
     const url =
       type === 'password'
-        ? '/api/v1/users/updateMyPassword'
-        : '/api/v1/users/updateMe';
+        ? 'https://natours-api-loxk.onrender.com/api/v1/users/updateMyPassword'
+        : 'https://natours-api-loxk.onrender.com/api/v1/users/updateMe';
     const res = await axios({
       method: 'PATCH',
       url,
@@ -23,7 +23,7 @@ export const sendResetToken = async (email) => {
   try {
     const res = await axios({
       method: 'POST',
-      url: '/api/v1/users/forgotPassword',
+      url: 'https://natours-api-loxk.onrender.com/api/v1/users/forgotPassword',
       data: {
         email,
       },
@@ -40,7 +40,7 @@ export const resetPassword = async (password, passwordConfirm, token) => {
   try {
     const res = await axios({
       method: 'PATCH',
-      url: `/api/v1/users/resetPassword/${token}`,
+      url: `https://natours-api-loxk.onrender.com/api/v1/users/resetPassword/${token}`,
       data: {
         password,
         passwordConfirm,
