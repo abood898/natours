@@ -15,7 +15,10 @@ router
     tourController.createTour
   );
 router
-  .route('/:id')
+  .route('/name/:name')
+  .get(tourController.insertTourName, tourController.getTour);
+router
+  .route('/id/:id')
   .get(tourController.getTour)
   .patch(
     authController.protect,
@@ -44,7 +47,7 @@ router.use(authController.restrictTo('user'));
 router
   .route('/:tourId/reviews')
   .get(reviewController.getAllReviews)
-  .post(tourController.setTourUserIds, reviewController.createReview);
+  .post(authController.checkAllowedToReview, reviewController.createReview);
 router
   .route('/:tourId/reviews/:reviewId')
   .patch(authController.checkReviewUser, reviewController.updateReview)

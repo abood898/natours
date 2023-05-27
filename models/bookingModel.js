@@ -23,16 +23,11 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  wentOnTour: {
+    type: Boolean,
+    default: false,
+  },
 });
-
-bookingSchema.pre(/^find/, function (next) {
-  this.populate('user').populate({
-    path: 'tour',
-    select: 'name',
-  });
-  next();
-});
-
 const Booking = mongoose.model('Booking', bookingSchema);
 
 module.exports = Booking;

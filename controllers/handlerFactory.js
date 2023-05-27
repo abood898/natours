@@ -45,8 +45,6 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.params.tourId) req.body.tour = req.params.tourId;
-    if (req.user.id) req.body.user = req.user.id;
     const doc = await Model.create(req.body);
 
     res.status(201).json({
@@ -73,10 +71,8 @@ exports.getOne = (Model, populateOptions) =>
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    // to allow for nested get reviews on tour
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
-
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()

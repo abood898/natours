@@ -7,6 +7,7 @@ const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+const Booking = require('../models/bookingModel');
 
 exports.checkReviewUser = catchAsync(async (req, res, next) => {
   const review = await Review.findById(req.params.reviewId);
@@ -16,6 +17,25 @@ exports.checkReviewUser = catchAsync(async (req, res, next) => {
 
   if (String(review.user) !== req.user.id) {
     return next(new AppError('Access Denied!', 403));
+  }
+  next();
+});
+exports.checkAllowedToReview = catchAsync(async (req, res, next) => {
+  const booking = await Booking.findOne({
+    tour: req.body.tour,
+    user: req.body.user,
+  });
+  if (!booking || !booking.wentOnTour) {
+    return next(new AppError('Your are not allowed to review', 403));
+  }
+  const review = await Review.findOne({
+    tour: req.body.tour,
+    user: req.body.user,
+  });
+  if (review) {
+    return next(
+      new AppError('You already submitted a review on this tour', 403)
+    );
   }
   next();
 });
@@ -46,7 +66,6 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  // console.log(req.body);
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -54,9 +73,51 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
+  const confirmationToken = newUser.createConfirmEmailToken();
+  await newUser.save({ validateBeforeSave: false });
+
+  try {
+    const url = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/confirmEmail/${confirmationToken}`;
+
+    await new Email(newUser, url).sendEmailConfirmation();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Token sent to email',
+    });
+  } catch (error) {
+    newUser.accountConfirmedToken = undefined;
+    await newUser.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError('There was an error sending the email. try again later!'),
+      500
+    );
+  }
+});
+exports.confirmEmail = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    accountConfirmedToken: hashedToken,
+  });
+
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired!', 400));
+  }
+  user.accountConfirmedToken = undefined;
+  user.accountConfirmed = true;
+  await user.save({ validateBeforeSave: false });
   const url = `${req.protocol}://${req.get('host')}/me`;
-  await new Email(newUser, url).sendWelcome();
-  createSendToken(newUser, 201, res);
+  await new Email(user, url).sendWelcome();
+  res.status(200).render('emailConfirm', {
+    msg: 'Your email has been confirmed successfully',
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -64,10 +125,14 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Please Provide an email and password!', 400));
   }
-  const user = await User.findOne({ email }).select('+password');
 
+  const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password!', 401));
+  }
+  // fix this
+  if (!user.accountConfirmed) {
+    return next(new AppError('Please confirm your email to login!', 401));
   }
   createSendToken(user, 200, res);
 });
@@ -110,11 +175,10 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
   req.user = currentUser;
   res.locals.user = currentUser;
-
   next();
 });
 
-exports.isLogginIn = async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
     try {
       // 1) Verify token
@@ -132,7 +196,6 @@ exports.isLogginIn = async (req, res, next) => {
       res.locals.user = currentUser;
       return next();
     } catch (error) {
-      // console.log(error);
       return next();
     }
   }
@@ -152,6 +215,7 @@ exports.restrictTo = (...roles) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
+
   if (!user) {
     return next(new AppError('There is no user with email address', 404));
   }
@@ -162,7 +226,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   try {
     const resetURL = `${req.protocol}://${req.get(
       'host'
-    )}/api/v1/users/resetPassword/${resetToken}`;
+    )}/resetPassword/${resetToken}`;
     await new Email(user, resetURL).sendPasswordReset();
 
     res.status(200).json({
@@ -205,7 +269,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
-  // console.log(req.body.email);
   if (!user) {
     return next(new AppError('There is no user with this id address', 404));
   }

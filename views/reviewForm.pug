@@ -1,0 +1,14 @@
+extends base
+
+block content
+    .review_form_container
+        form.review_form#add_review
+            .reviews__rating
+                each star in [1, 2, 3, 4, 5]
+                    svg.reviews__star(class='reviews__star--inactive', id=star)
+                        use(xlink:href='/img/icons.svg#icon-star')
+            div
+                label(for="review") Review:
+                textarea(id="review" name="review" rows="4" cols="40")
+            .submit-btn-container 
+                button.btn.btn--green#submitReview(type="submit", data-tour-id=`${tour.id}`, data-user-id=`${user.id}`) Submit Review 

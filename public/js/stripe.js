@@ -1,4 +1,3 @@
-// import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
 import { showAlert } from './alerts.js';
 const stripe = Stripe(
@@ -7,12 +6,12 @@ const stripe = Stripe(
 
 export const bookTour = async (tourID, elem) => {
   try {
-    const res = await axios(`/api/v1/bookings//checkout-session/${tourID}`);
+    const res = await axios(`/api/v1/bookings/checkout-session/${tourID}`);
 
     await stripe.redirectToCheckout({
       sessionId: res.data.session.id,
     });
-    elem.textContent = 'Book tour now!';
+    elem.text('Book tour now!');
   } catch (error) {
     showAlert('error', error.message);
   }

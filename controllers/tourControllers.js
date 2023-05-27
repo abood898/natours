@@ -1,3 +1,4 @@
+const slugify = require('slugify');
 const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
@@ -10,12 +11,7 @@ exports.aliasTopTours = (req, res, next) => {
   req.query.fields = 'name,price,ratingAverage,summary,difficulty';
   next();
 };
-exports.setTourUserIds = (req, res, next) => {
-  // Allow nested routes
-  if (!req.body.tour) req.body.tour = req.params.tourId;
-  if (!req.body.user) req.body.user = req.user.id;
-  next();
-};
+
 exports.uploadTourImages = upload.fields([
   { name: 'imageCover', maxCount: 1 },
   { name: 'images', maxCount: 3 },
@@ -48,6 +44,17 @@ exports.resizeTourImages = (req, res, next) => {
   });
   next();
 };
+exports.insertTourName = catchAsync(async (req, res, next) => {
+  let slug;
+  console.log(req.params);
+  if (req.params.name) slug = slugify(req.params.name, { lower: true });
+  const tour = await Tour.findOne({ slug });
+  if (!tour) {
+    return next(new AppError('No tour with that name', 404));
+  }
+  req.params.id = tour.id;
+  next();
+});
 exports.getAllTours = factory.getAll(Tour);
 exports.getTour = factory.getOne(Tour, { path: 'reviews' });
 exports.createTour = factory.createOne(Tour);

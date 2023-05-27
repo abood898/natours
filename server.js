@@ -9,12 +9,12 @@ dotenv.config({ path: './config.env' });
 const app = require('./app');
 const mongoose = require('mongoose');
 
-// const DB = process.env.DATABASE.replace(
-//   '<PASSWORD>',
-//   process.env.DATABASE_PASSWORD
-// );
+const DB = process.env.DATABASE.replace(
+  '<password>',
+  process.env.DATABASE_PASSWORD
+).replace('<user>', process.env.DATABASE_USERNAME);
 
-const DB = process.env.DATABASE_LOCAL;
+// let DB = process.env.DATABASE_LOCAL;
 mongoose.set('strictQuery', true);
 
 mongoose.connect(DB).then((con) => {

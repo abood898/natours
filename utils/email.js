@@ -47,6 +47,7 @@ module.exports = class Email {
       html,
       text: htmlToText.convert(html, { wordwrap: false }),
     };
+
     await this.newTransport().sendMail(mailOptions);
   }
   async sendWelcome() {
@@ -57,5 +58,8 @@ module.exports = class Email {
       'passwordReset',
       'Your password reset token (valid for 10 minutes)'
     );
+  }
+  async sendEmailConfirmation() {
+    await this.send('emailConfirm', 'Your email confirmation token');
   }
 };

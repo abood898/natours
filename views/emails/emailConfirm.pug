@@ -2,8 +2,8 @@ extends baseEmail
 
 block content
     p Hi #{firstName},
-    p Click on link below
-
+    p Please click on this link to confirm your email : #{url} .
+    //- p (Website for this action not yet implemented)
     table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
         tbody
             tr
@@ -12,5 +12,5 @@ block content
                         tbody
                             tr
                                 td
-                                    a(href=`${url}`, target='_blank') Reset your password
-    p if you did not forget you email please ignore this message.
+                                    a(href=`${url}`, target='_blank') Confirm your email
+    p 

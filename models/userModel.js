@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const Booking = require('./bookingModel');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -47,6 +48,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  accountConfirmedToken: String,
+  accountConfirmed: {
+    type: Boolean,
+    default: false,
+  },
   active: {
     type: Boolean,
     default: true,
@@ -88,6 +94,15 @@ userSchema.methods.createPasswordResetToken = function () {
 
   return resetToken;
 };
+userSchema.methods.createConfirmEmailToken = function () {
+  const confirmationToken = crypto.randomBytes(32).toString('hex');
+  this.accountConfirmedToken = crypto
+    .createHash('sha256')
+    .update(confirmationToken)
+    .digest('hex');
+
+  return confirmationToken;
+};
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -104,7 +119,6 @@ userSchema.pre('save', function (next) {
   this.passwordChangedAt = Date.now() - 1000; // create token after password has been changed
   next();
 });
-
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

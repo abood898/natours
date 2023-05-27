@@ -68,7 +68,7 @@ block content
         each img, i in tour.images
             .picture-box
                 img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} ${i + 1}`, class=`picture-box__img--${i + 1}`)
-
+    
     section.section-map
         #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
@@ -76,7 +76,9 @@ block content
         .reviews
             each review in tour.reviews
                 +reviewCard(review)
-
+    - if (user)
+        .review__button
+            a.btn.btn--green(href=`/tour/${tour.slug}/add-review`) Add Review
     section.section-cta
         .cta
             .cta__img.cta__img--logo
